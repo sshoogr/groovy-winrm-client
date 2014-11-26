@@ -1,0 +1,5 @@
+com.aestasit.infrastructure.winrm
+com.aestasit.infrastructure.winrm.client
+com.aestasit.infrastructure.winrm.client.https
+com.aestasit.infrastructure.winrm.client.request
+com.aestasit.infrastructure.winrm.client.util
