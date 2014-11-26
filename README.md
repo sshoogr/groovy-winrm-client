@@ -1,6 +1,6 @@
-groovy-project-template
+groovy-winrm-client
 =======================
 
-Gradle project template for faster Groovy project creation.
+Groovy WinRM client library.
 
 
