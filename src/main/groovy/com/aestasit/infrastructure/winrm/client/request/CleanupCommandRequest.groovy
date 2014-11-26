@@ -20,11 +20,12 @@ import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
 
 /**
- * Request to free resources after command execution
+ * Request to free resources after command execution.
  *
  * @author Sergey Korenko
  */
 class CleanupCommandRequest extends WinRMRequest {
+
   String commandId
   String shellId
 
@@ -36,12 +37,13 @@ class CleanupCommandRequest extends WinRMRequest {
 
   @Override
   String toString() {
-    def writer = new StringWriter()
+
+    StringWriter writer = new StringWriter()
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
-            'xmlns:wsa': NMSP_URI_WSA,
-            'xmlns:wsman': NMSP_URI_WSMAN) {
+        'xmlns:wsa': NMSP_URI_WSA,
+        'xmlns:wsman': NMSP_URI_WSMAN) {
       's:Header' {
         'wsa:To'(toAddress)
         'wsman:ResourceURI'('s:mustUnderstand': true, URI_SHELL_CMD)
@@ -65,5 +67,7 @@ class CleanupCommandRequest extends WinRMRequest {
     }
 
     writer.toString()
+
   }
+
 }

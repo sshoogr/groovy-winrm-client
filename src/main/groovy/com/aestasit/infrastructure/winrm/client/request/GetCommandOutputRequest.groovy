@@ -24,7 +24,7 @@ import groovy.xml.MarkupBuilder
  *
  * @author Sergey Korenko
  */
-class GetCommandOutputRequest extends WinRMRequest{
+class GetCommandOutputRequest extends WinRMRequest {
   String commandId
   String shellId
 
@@ -40,25 +40,25 @@ class GetCommandOutputRequest extends WinRMRequest{
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
-            'xmlns:wsa': NMSP_URI_WSA,
-            'xmlns:wsman': NMSP_URI_WSMAN) {
-      's:Header'{
+        'xmlns:wsa': NMSP_URI_WSA,
+        'xmlns:wsman': NMSP_URI_WSMAN) {
+      's:Header' {
         'wsa:To'(toAddress)
-        'wsman:ResourceURI'('s:mustUnderstand':true, URI_SHELL_CMD)
-        'wsa:ReplyTo'{
-          'wsa:Address'('s:mustUnderstand':true, URI_ADDRESS)
+        'wsman:ResourceURI'('s:mustUnderstand': true, URI_SHELL_CMD)
+        'wsa:ReplyTo' {
+          'wsa:Address'('s:mustUnderstand': true, URI_ADDRESS)
         }
-        'wsa:Action'('s:mustUnderstand':true, 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/Receive')
-        'wsman:MaxEnvelopeSize'('s:mustUnderstand':true, envelopSize)
+        'wsa:Action'('s:mustUnderstand': true, 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/Receive')
+        'wsman:MaxEnvelopeSize'('s:mustUnderstand': true, envelopSize)
         'wsa:MessageID'(Utils.composeUUID())
-        'wsman:Locale'('s:mustUnderstand':false, 'xml:lang':locale)
+        'wsman:Locale'('s:mustUnderstand': false, 'xml:lang': locale)
         'wsman:SelectorSet' {
           'wsman:Selector'(Name: 'ShellId', "${shellId}")
         }
         'wsman:OperationTimeout'(timeout)
       }
-      's:Body'{
-        'rsp:Receive'('xmlns:rsp':NMSP_URI_RSP, 'SequenceId':'0'){
+      's:Body' {
+        'rsp:Receive'('xmlns:rsp': NMSP_URI_RSP, 'SequenceId': '0') {
           'rsp:DesiredStream'('CommandId': commandId, 'stdout stderr')
         }
       }

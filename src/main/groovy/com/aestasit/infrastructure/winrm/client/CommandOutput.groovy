@@ -17,14 +17,16 @@
 package com.aestasit.infrastructure.winrm.client
 
 /**
- * Results of the command execution -
- * 1) exitCode
- * 2) output of the command execution
- * 3) error output in case of error occurred during command execution
- * <p>
+ * Results of the command execution:
+ *
+ * 1. exitCode
+ * 2. output of the command execution
+ * 3. error output in case of error occurred during command execution
+ *
  * @author Andrey Adamovich
  */
 class CommandOutput {
+
   int exitStatus
   String output
   String errorOutput

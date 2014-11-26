@@ -2,8 +2,7 @@
             xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing"
             xmlns:x="http://schemas.xmlsoap.org/ws/2004/09/transfer"
             xmlns:w="http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd"
-            xmlns:rsp="http://schemas.microsoft.com/wbem/wsman/1/windows/shell"
-            xmlns:p="http://schemas.microsoft.com/wbem/wsman/1/wsman.xsd">
+    >
     <s:Header>
         <a:Action>http://schemas.xmlsoap.org/ws/2004/09/transfer/CreateResponse</a:Action>
         <a:MessageID>uuid:2B226BFC-21B5-43A4-87DE-69312E887469</a:MessageID>

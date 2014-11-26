@@ -20,7 +20,6 @@ package com.aestasit.infrastructure.winrm;
  * Generic exception to be thrown in exceptional situations.
  *
  * @author Andrey Adamovich
- *
  */
 public class WinRMException extends RuntimeException {
   Integer code;

@@ -17,6 +17,7 @@
 package com.aestasit.infrastructure.winrm.client
 
 import org.junit.Test
+
 import static org.junit.Assert.assertNotNull
 
 /**

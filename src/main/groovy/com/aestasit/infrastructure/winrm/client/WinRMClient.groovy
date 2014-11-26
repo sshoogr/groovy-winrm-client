@@ -17,8 +17,8 @@
 package com.aestasit.infrastructure.winrm.client
 
 import com.aestasit.infrastructure.winrm.WinRMException
-import com.aestasit.infrastructure.winrm.client.https.WinRMHttpsHostVerificationStrategy
-import com.aestasit.infrastructure.winrm.client.https.WinRMHttpsTrustStrategy
+import com.aestasit.infrastructure.winrm.client.https.HostStrategy
+import com.aestasit.infrastructure.winrm.client.https.TrustStrategy
 import com.aestasit.infrastructure.winrm.client.request.*
 import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.transform.Canonical
@@ -32,36 +32,38 @@ import org.slf4j.LoggerFactory
 
 import java.util.concurrent.TimeoutException
 
-import static com.aestasit.infrastructure.winrm.client.util.Defines.*
+import static com.aestasit.infrastructure.winrm.client.util.Constants.*
 import static groovyx.net.http.ContentType.TEXT
 import static groovyx.net.http.Method.POST
 
 /**
- * A primitive implementation of WinRM client.
+ * WinRM client implementation.
  *
  * @author Sergey Korenko
  */
-@Canonical(includes = ['protocol','host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout'])
+@Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout'])
 class WinRMClient {
+
   private final Logger logger = LoggerFactory.getLogger(getClass().getPackage().getName())
 
-  String protocol    = PROTOCOL_HTTP
+  String protocol = PROTOCOL_HTTP
   String host
-  int port           = PORT_HTTP
+  int port = PORT_HTTP
   String user
   String password
 
   /** Timeout for open shell*/
-  long shellTimeout         = SHELL_DEFAULT_TIMEOUT
+  long shellTimeout = SHELL_DEFAULT_TIMEOUT
+
   /** Timeout of a single WinRM request in seconds*/
-  int requestTimeout        = REQUEST_DEFAULT_TIMEOUT
+  int requestTimeout = REQUEST_DEFAULT_TIMEOUT
 
   URL toAddress
   String shellId
   HTTPBuilder httpBuilder
 
-  WinRMHttpsTrustStrategy trustStrategy = WinRMHttpsTrustStrategy.ALLOW_SELF_SIGNED
-  WinRMHttpsHostVerificationStrategy verificationStrategy = WinRMHttpsHostVerificationStrategy.ALLOW_ALL
+  TrustStrategy trustStrategy = TrustStrategy.ALLOW_SELF_SIGNED
+  HostStrategy verificationStrategy = HostStrategy.ALLOW_ALL
 
   void initialize() {
     Validate.notEmpty(host, 'WinRM Host has to be initialized')
@@ -90,9 +92,9 @@ class WinRMClient {
   }
 
   /**
-   * Creates WinRM shell for execution of remote commands. Shell is identified by id
+   * Creates WinRM shell for execution of remote commands.
    *
-   * @return id of the open shell in case of
+   * @return id of the open shell
    */
   String openShell() {
     logger.debug 'Sending request to create WinRM Shell'
@@ -113,7 +115,7 @@ class WinRMClient {
   }
 
   /**
-   * Runs commands
+   * Runs commands.
    *
    * @param command command text
    * @param args arguments to run command
@@ -170,7 +172,7 @@ class WinRMClient {
     outputResults
   }
 
-  CommandOutput commandExecuteResults(String commandId){
+  CommandOutput commandExecuteResults(String commandId) {
     logger.debug "Reading output of command with id =[${commandId}] from shell with id=${shellId}"
 
     Validate.notNull(shellId, 'Command cannot be executed when an open remote shell is not available (shellId == null)')
@@ -181,22 +183,28 @@ class WinRMClient {
     GPathResult results = new XmlSlurper().parseText(response)
     String commandOutputArr = ''
     String errOutputArr = ''
-    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll{it.@Name=='stdout' && it.@CommandId==commandId}?.each{ commandOutputArr += new String(it.text().decodeBase64())}
-    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll{it.@Name=='stderr' && it.@CommandId==commandId}?.each{errOutputArr += new String(it.text().decodeBase64())}
+    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
+      it.@Name == 'stdout' && it.@CommandId == commandId
+    }?.each { commandOutputArr += new String(it.text().decodeBase64()) }
+    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
+      it.@Name == 'stderr' && it.@CommandId == commandId
+    }?.each { errOutputArr += new String(it.text().decodeBase64()) }
 
-    if(results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.find{it.@CommandId==commandId && it.@State =='http://schemas.microsoft.com/wbem/wsman/1/windows/shell/CommandState/Done'}){
+    if (results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.find {
+      it.@CommandId == commandId && it.@State == 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/CommandState/Done'
+    }) {
       Integer exitStatus = results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.'*:ExitCode'?.text()?.toInteger()
 
       logger.debug "retrieve command output of command with id =[${commandId}] has been processed"
 
       new CommandOutput(exitStatus, commandOutputArr, errOutputArr)
-    } else{
+    } else {
       logger.debug "command with id =[${commandId}] from shell with id=${shellId} is still RUNNING"
       new CommandOutput(-1, '', CMD_IS_RUNNING)
     }
   }
 
-  void cleanupCommand(String commandId){
+  void cleanupCommand(String commandId) {
     logger.debug "Release all external and internal WinRM resources for shell with id=${shellId} and command id = [${commandId}]"
 
     Validate.notNull(shellId, 'Clenup command cannot be executed when an open remote shell is not available (shellId == null)')
@@ -246,13 +254,13 @@ class WinRMClient {
     responseXml
   }
 
-  CommandOutput execute(String command, String[] arguments=[]) {
+  CommandOutput execute(String command, String[] arguments = []) {
     String commandId = null
-    try{
+    try {
       logger.debug "Starting execution ${command} command on remote host"
       openShell()
       commandId = executeCommand(command, arguments)
-      CommandOutput  output = getCommandExecutionResults(commandId)
+      CommandOutput output = getCommandExecutionResults(commandId)
       deleteShell()
       logger.debug "Finished execution ${command} command on remote host"
 
@@ -270,8 +278,8 @@ class WinRMClient {
     }
   }
 
-  private CommandOutput stopExecution(String commandId, Closure cl){
-    if(commandId && shellId){
+  private CommandOutput stopExecution(String commandId, Closure cl) {
+    if (commandId && shellId) {
       cleanupCommand(commandId)
       deleteShell()
     }

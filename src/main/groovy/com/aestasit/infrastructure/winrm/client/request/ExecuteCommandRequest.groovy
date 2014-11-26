@@ -20,16 +20,17 @@ import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
 
 /**
- * Request that causes command remote execution
+ * Request that starts remote command execution.
  *
  * @author Sergey Korenko
  */
 class ExecuteCommandRequest extends WinRMRequest {
+
   String commandLine
   String[] commandArguments
   String shellId
 
-  ExecuteCommandRequest(URL toAddress, String shellId, String commandLine, String[] args = [], int timeout=60) {
+  ExecuteCommandRequest(URL toAddress, String shellId, String commandLine, String[] args = [], int timeout = 60) {
     super(toAddress, timeout)
     this.shellId = shellId
     this.commandLine = commandLine
@@ -38,22 +39,23 @@ class ExecuteCommandRequest extends WinRMRequest {
 
   @Override
   String toString() {
+
     def writer = new StringWriter()
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
-            'xmlns:wsa': NMSP_URI_WSA,
-            'xmlns:wsman': NMSP_URI_WSMAN) {
-      's:Header'{
+        'xmlns:wsa': NMSP_URI_WSA,
+        'xmlns:wsman': NMSP_URI_WSMAN) {
+      's:Header' {
         'wsa:To'(toAddress)
-        'wsman:ResourceURI'('s:mustUnderstand':true, URI_SHELL_CMD)
-        'wsa:ReplyTo'{
-          'wsa:Address'('s:mustUnderstand':true, URI_ADDRESS)
+        'wsman:ResourceURI'('s:mustUnderstand': true, URI_SHELL_CMD)
+        'wsa:ReplyTo' {
+          'wsa:Address'('s:mustUnderstand': true, URI_ADDRESS)
         }
-        'wsa:Action'('s:mustUnderstand':true, 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/Command')
-        'wsman:MaxEnvelopeSize'('s:mustUnderstand':true, envelopSize)
+        'wsa:Action'('s:mustUnderstand': true, 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/Command')
+        'wsman:MaxEnvelopeSize'('s:mustUnderstand': true, envelopSize)
         'wsa:MessageID'(Utils.composeUUID())
-        'wsman:Locale'('s:mustUnderstand':false, 'xml:lang':locale)
+        'wsman:Locale'('s:mustUnderstand': false, 'xml:lang': locale)
         'wsman:SelectorSet' {
           'wsman:Selector'(Name: 'ShellId', "${shellId}")
         }
@@ -62,8 +64,8 @@ class ExecuteCommandRequest extends WinRMRequest {
         }
         'wsman:OperationTimeout'(timeout)
       }
-      's:Body'{
-        'rsp:CommandLine'('xmlns:rsp':NMSP_URI_RSP){
+      's:Body' {
+        'rsp:CommandLine'('xmlns:rsp': NMSP_URI_RSP) {
           'rsp:Command'(commandLine)
           commandArguments.each { argument ->
             'rsp:Arguments'(argument)
@@ -73,5 +75,7 @@ class ExecuteCommandRequest extends WinRMRequest {
     }
 
     writer.toString()
+
   }
+
 }

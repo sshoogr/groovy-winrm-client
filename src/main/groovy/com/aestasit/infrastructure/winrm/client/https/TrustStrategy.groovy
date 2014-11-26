@@ -16,21 +16,28 @@
 
 package com.aestasit.infrastructure.winrm.client.https
 
-import org.apache.http.conn.ssl.X509HostnameVerifier
-import static org.apache.http.conn.ssl.SSLSocketFactory.*
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy
+
+import java.security.cert.CertificateException
+import java.security.cert.X509Certificate
 
 /**
- * Provides host names verification strategies for https connection
+ * Provides trust strategy for https connection
  *
  * @author Sergey Korenko
  */
-enum WinRMHttpsHostVerificationStrategy {
-  ALLOW_STRICT(STRICT_HOSTNAME_VERIFIER),
-  ALLOW_BROWSER_COMPATIBLE(BROWSER_COMPATIBLE_HOSTNAME_VERIFIER),
-  ALLOW_ALL(ALLOW_ALL_HOSTNAME_VERIFIER)
+enum TrustStrategy {
+  ALLOW_NONE(null),
+  ALLOW_SELF_SIGNED(new TrustSelfSignedStrategy()),
+  ALLOW_ALL(new org.apache.http.conn.ssl.TrustStrategy() {
+    @Override
+    public boolean isTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
+      true
+    }
+  })
 
-  private WinRMHttpsHostVerificationStrategy(X509HostnameVerifier verifier) {
-    this.verifier = verifier
+  private TrustStrategy(org.apache.http.conn.ssl.TrustStrategy strategy) {
+    this.strategy = strategy
   }
-  X509HostnameVerifier verifier
+  org.apache.http.conn.ssl.TrustStrategy strategy
 }

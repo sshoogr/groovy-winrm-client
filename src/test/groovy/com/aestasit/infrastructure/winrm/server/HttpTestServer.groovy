@@ -16,12 +16,6 @@
 
 package com.aestasit.infrastructure.winrm.server
 
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static org.apache.commons.io.IOUtils.write
-
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import org.apache.commons.io.IOUtils
 import org.junit.Ignore
 import org.mortbay.jetty.Handler
@@ -29,6 +23,13 @@ import org.mortbay.jetty.HttpConnection
 import org.mortbay.jetty.Request
 import org.mortbay.jetty.Server
 import org.mortbay.jetty.handler.AbstractHandler
+
+import javax.servlet.ServletException
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+import static javax.servlet.http.HttpServletResponse.SC_OK
+import static org.apache.commons.io.IOUtils.write
 
 @Ignore
 public class HttpTestServer {

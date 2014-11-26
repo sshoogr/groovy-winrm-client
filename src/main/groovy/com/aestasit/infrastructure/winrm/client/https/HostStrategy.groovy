@@ -14,8 +14,25 @@
  * limitations under the License.
  */
 
-package com.aestasit.infrastructure.winrm
+package com.aestasit.infrastructure.winrm.client.https
 
-class Cool {
+import org.apache.http.conn.ssl.X509HostnameVerifier
 
+import static org.apache.http.conn.ssl.SSLSocketFactory.*
+
+/**
+ * Provides host names verification strategies for https connection.
+ *
+ * @author Sergey Korenko
+ */
+enum HostStrategy {
+
+  ALLOW_STRICT(STRICT_HOSTNAME_VERIFIER),
+  ALLOW_BROWSER_COMPATIBLE(BROWSER_COMPATIBLE_HOSTNAME_VERIFIER),
+  ALLOW_ALL(ALLOW_ALL_HOSTNAME_VERIFIER)
+
+  private HostStrategy(X509HostnameVerifier verifier) {
+    this.verifier = verifier
+  }
+  X509HostnameVerifier verifier
 }

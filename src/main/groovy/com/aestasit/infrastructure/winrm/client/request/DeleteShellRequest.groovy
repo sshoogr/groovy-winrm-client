@@ -18,12 +18,14 @@ package com.aestasit.infrastructure.winrm.client.request
 
 import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
+
 /**
- * Request to closed previously open shell
+ * Request to closed previously open shell.
  *
  * @author Sergey Korenko
  */
 class DeleteShellRequest extends WinRMRequest {
+
   String shellId
 
   DeleteShellRequest(URL toAddress, String shellId, int timeout = 60) {
@@ -37,8 +39,8 @@ class DeleteShellRequest extends WinRMRequest {
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
-            'xmlns:wsa': NMSP_URI_WSA,
-            'xmlns:wsman': NMSP_URI_WSMAN) {
+        'xmlns:wsa': NMSP_URI_WSA,
+        'xmlns:wsman': NMSP_URI_WSMAN) {
       's:Header' {
         'wsa:To'(toAddress)
         'wsa:ReplyTo' {

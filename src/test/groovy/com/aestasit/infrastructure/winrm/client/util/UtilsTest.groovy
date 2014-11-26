@@ -18,8 +18,6 @@ package com.aestasit.infrastructure.winrm.client.util
 
 import org.junit.Test
 
-import static org.junit.Assert.assertEquals
-
 /**
  * Util class tests
  *

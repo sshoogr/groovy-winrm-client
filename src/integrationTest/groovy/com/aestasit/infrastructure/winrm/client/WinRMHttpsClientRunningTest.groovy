@@ -19,10 +19,9 @@ package com.aestasit.infrastructure.winrm.client
 import org.junit.BeforeClass
 import org.junit.Test
 
+import static com.aestasit.infrastructure.winrm.client.util.Constants.PROTOCOL_HTTPS
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
-
-import static com.aestasit.infrastructure.winrm.client.util.Defines.*
 
 /**
  * Integration class to test WinRM client via HTTPS

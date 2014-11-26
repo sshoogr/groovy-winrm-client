@@ -17,21 +17,24 @@
 package com.aestasit.infrastructure.winrm.client.util
 
 import com.aestasit.infrastructure.winrm.WinRMException
+
 /**
- * Help methods
+ * Utility methods.
  *
  * @author Sergey Korenko
  */
 class Utils {
+
   static URL buildUrl(String scheme, String address, int port) {
     try {
       new URL(scheme, address, port, "/wsman")
     } catch (MalformedURLException e) {
-      throw new WinRMException("Invalid winrm url", e)
+      throw new WinRMException("Invalid WinRM URL!", e)
     }
   }
 
   static String composeUUID() {
-    "uuid:" + UUID.randomUUID().toString().toUpperCase();
+    "uuid:" + UUID.randomUUID().toString().toUpperCase()
   }
+
 }

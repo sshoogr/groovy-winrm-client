@@ -31,7 +31,7 @@ abstract class WinRMRequest {
   static String URI_SHELL_CMD = 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/cmd'
   static String URI_ADDRESS = 'http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous'
 
-  static int WINRS_CODEPAGE  = 437
+  static int WINRS_CODEPAGE = 437
   static String WINRS_NOPROFILE = 'FALSE'
 
   URL toAddress

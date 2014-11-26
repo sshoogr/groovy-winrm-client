@@ -18,9 +18,10 @@ package com.aestasit.infrastructure.winrm.client
 
 import org.junit.BeforeClass
 import org.junit.Test
+
+import static com.aestasit.infrastructure.winrm.client.util.Constants.*
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
-import static com.aestasit.infrastructure.winrm.client.util.Defines.*
 
 class WinRMClientRunningTest{
   static WinRMClient client
