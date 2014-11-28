@@ -233,6 +233,10 @@ class WinRMClient {
   private synchronized String sendHttpRequest(String request) {
     logger.debug "Sending http request to remote host"
 
+    if (!httpBuilder) {
+      throw new WinRMException('Request over HTTP(S) cannot be sent! Probably _WinRMClient.initialize() method has to be invoked after creation of WinRMClient object')
+    }
+
     String responseXml = null
     httpBuilder.request(POST, TEXT) {
       headers.Accept = 'application/soap+xml; charset=utf-8'

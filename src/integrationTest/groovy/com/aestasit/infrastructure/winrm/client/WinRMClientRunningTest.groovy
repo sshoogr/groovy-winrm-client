@@ -69,4 +69,17 @@ class WinRMClientRunningTest{
     assertTrue CMD_IS_TERMINATED_BY_EXCEPTION == output.errorOutput
     assertTrue 'java.net.UnknownHostException: NotExistingHost' == output.exception.toString()
   }
+
+  @Test
+  void testCreateFile(){
+    client.shellTimeout = SHELL_DEFAULT_TIMEOUT
+    CommandOutput output = client.execute('timeout', ['10'] as String[])
+
+    println output.output
+    println output.exception
+    println output.errorOutput
+    println output.exitStatus
+
+    assertEquals 0, output.exitStatus
+  }
 }
