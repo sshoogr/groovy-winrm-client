@@ -65,10 +65,20 @@ class WinRMClient {
   TrustStrategy trustStrategy = TrustStrategy.ALLOW_SELF_SIGNED
   HostStrategy verificationStrategy = HostStrategy.ALLOW_ALL
 
+  /**
+   * Initializes <code>WinRMClient</code> object.
+   * The method has to be invoked directly after instantiating of a <code>WinRMClient</code> object
+   */
   void initialize() {
-    Validate.notEmpty(host, 'WinRM Host has to be initialized')
-    Validate.notEmpty(user, 'WinRM Username has to be initialized')
-    Validate.notEmpty(password, 'WinRM Password cannot be empty')
+    if (null == host) {
+      throw new WinRMException('WinRM Host has to be initialized')
+    }
+    if (null == user) {
+      throw new WinRMException('WinRM Username has to be initialized')
+    }
+    if (null == password) {
+      throw new WinRMException('WinRM Password has to be initialized')
+    }
 
     if (!toAddress) {
       toAddress = Utils.buildUrl(protocol, host, port)
@@ -92,7 +102,7 @@ class WinRMClient {
   }
 
   /**
-   * Creates WinRM shell for execution of remote commands.
+   * Creates WinRM shell for further execution of remote commands.
    *
    * @return id of the open shell
    */
@@ -115,7 +125,7 @@ class WinRMClient {
   }
 
   /**
-   * Runs commands.
+   * Runs command
    *
    * @param command command text
    * @param args arguments to run command
@@ -136,7 +146,7 @@ class WinRMClient {
     commandId
   }
 
-  CommandOutput getCommandExecutionResults(String commandId) {
+  private CommandOutput getCommandExecutionResults(String commandId) {
     CommandOutput outputResults = new CommandOutput(-1, '', '')
 
     Thread thr = new Thread() {
@@ -172,6 +182,12 @@ class WinRMClient {
     outputResults
   }
 
+  /**
+   * Retrieves results of the command execution on a remote host
+   *
+   * @param commandId identify command id which output/error output will be retrieved
+   * @return CommandOutput containing output, error output, exit code of the command execution on a remote host
+   */
   CommandOutput commandExecuteResults(String commandId) {
     logger.debug "Reading output of command with id =[${commandId}] from shell with id=${shellId}"
 
@@ -204,6 +220,11 @@ class WinRMClient {
     }
   }
 
+  /**
+   * Stops command execution on a remote host(Ctrl+C)
+   *
+   * @param commandId id of the command which has to be cleaned
+   */
   void cleanupCommand(String commandId) {
     logger.debug "Release all external and internal WinRM resources for shell with id=${shellId} and command id = [${commandId}]"
 
@@ -216,6 +237,11 @@ class WinRMClient {
     logger.debug 'Release all external and internal WinRM resources'
   }
 
+  /**
+   * Deletes shell releasing all resources allocated for the current shell on a remote host
+   *
+   * @return <code>true</code> in case of successful shell closing, otherwise <code>false</code>
+   */
   boolean deleteShell() {
     logger.debug "Sending Close shell request with id = ${shellId}"
 
@@ -258,6 +284,16 @@ class WinRMClient {
     responseXml
   }
 
+  /**
+   * Executes command on a remote host.
+   * Internally, complete WinRM lifecycle is executed
+   * < open shell for command execution - start command - if necessary wait for command exits -
+   * get command execution results - close shell
+   *
+   * @param command text of the command to execute
+   * @param arguments command arguments
+   * @return result of the command execution on a remote host
+   */
   CommandOutput execute(String command, String[] arguments = []) {
     String commandId = null
     try {
@@ -284,9 +320,15 @@ class WinRMClient {
 
   private CommandOutput stopExecution(String commandId, Closure cl) {
     if (commandId && shellId) {
-      cleanupCommand(commandId)
-      deleteShell()
+      try {
+        cleanupCommand(commandId)
+        deleteShell()
+      } catch(Exception e) {
+        logger.warn "Stopping of execution command id [${commandId}] has been terminated by exception!"
+        return new CommandOutput(1, '', CMD_STOP_IS_TERMINATED_BY_EXCEPTION, e)
+      }
     }
+
     cl()
   }
 }

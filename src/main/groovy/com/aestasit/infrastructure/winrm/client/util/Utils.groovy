@@ -25,6 +25,14 @@ import com.aestasit.infrastructure.winrm.WinRMException
  */
 class Utils {
 
+  /**
+   * Creates <code>URL</code> object to connect to remote host by WinRM
+   *
+   * @param scheme http or https
+   * @param address remote host name or ip address
+   * @param port port to remote host connection
+   * @return created URL object
+   */
   static URL buildUrl(String scheme, String address, int port) {
     try {
       new URL(scheme, address, port, "/wsman")
@@ -33,6 +41,11 @@ class Utils {
     }
   }
 
+  /**
+   * Creates pseudo random UUID string
+   *
+   * @return pseudo random UUID string
+   */
   static String composeUUID() {
     "uuid:" + UUID.randomUUID().toString().toUpperCase()
   }

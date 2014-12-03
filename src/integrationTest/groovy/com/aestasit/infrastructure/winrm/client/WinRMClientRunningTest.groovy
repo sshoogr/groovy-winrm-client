@@ -28,7 +28,7 @@ class WinRMClientRunningTest{
 
   @BeforeClass
   static void initClient(){
-    client = new WinRMClient(host:'192.168.56.102', user:'vagrant', password:'vagrant')
+    client = new WinRMClient(host:'192.168.25.25', user:'vagrant', password:'vagrant')
     client.initialize()
   }
 

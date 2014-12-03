@@ -20,7 +20,7 @@ import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
 
 /**
- * The class is responsible for 
+ * Request to get command output
  *
  * @author Sergey Korenko
  */

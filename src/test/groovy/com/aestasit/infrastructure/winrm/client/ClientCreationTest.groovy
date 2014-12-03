@@ -16,6 +16,7 @@
 
 package com.aestasit.infrastructure.winrm.client
 
+import com.aestasit.infrastructure.winrm.WinRMException
 import org.junit.Test
 
 import static org.junit.Assert.assertNotNull
@@ -26,22 +27,19 @@ import static org.junit.Assert.assertNotNull
  * @author Sergey Korenko
  */
 class ClientCreationTest {
-//  @Test(expected=NullPointerException.class)
-  @Test(expected=GroovyRuntimeException.class)
+  @Test(expected=WinRMException.class)
   void testEmptyHost(){
     def client = new WinRMClient(user:'vagrant', password:'vagrant')
     client.initialize()
   }
 
-//  @Test(expected=NullPointerException.class)
-  @Test(expected=GroovyRuntimeException.class)
+  @Test(expected=WinRMException.class)
   void testEmptyUser(){
     def client = new WinRMClient(host:'192.168.56.101', password:'vagrant')
     client.initialize()
   }
 
-//  @Test(expected=NullPointerException.class)
-  @Test(expected=GroovyRuntimeException.class)
+  @Test(expected=WinRMException.class)
   void testEmptyPassword(){
     def client = new WinRMClient(host:'192.168.56.101', user:'vagrant')
     client.initialize()

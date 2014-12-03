@@ -32,7 +32,7 @@ class WinRMHttpsClientRunningTest{
   static WinRMClient client
   @BeforeClass
   static void initClient(){
-    client = new WinRMClient(PROTOCOL_HTTPS, '192.168.56.102', 5986, 'vagrant', 'vagrant')
+    client = new WinRMClient(PROTOCOL_HTTPS, '192.168.25.25', 5986, 'vagrant', 'vagrant')
     client.initialize()
   }
 
