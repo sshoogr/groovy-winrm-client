@@ -34,5 +34,7 @@ enum HostStrategy {
   private HostStrategy(X509HostnameVerifier verifier) {
     this.verifier = verifier
   }
+
   X509HostnameVerifier verifier
+
 }
