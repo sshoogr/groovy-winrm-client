@@ -30,8 +30,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import java.util.concurrent.TimeoutException
-
 import static com.aestasit.infrastructure.winrm.client.util.Constants.*
 import static groovyx.net.http.ContentType.TEXT
 import static groovyx.net.http.Method.POST
@@ -53,9 +51,6 @@ class WinRMClient {
   String user
   String password
 
-  /** Timeout for shell opening in seconds. */
-  long shellTimeout = SHELL_DEFAULT_TIMEOUT
-
   /** Timeout for single WinRM request in seconds. */
   int requestTimeout = REQUEST_DEFAULT_TIMEOUT
 
@@ -69,44 +64,6 @@ class WinRMClient {
 
   private static final String MISSING_SHELL_ID = 'Command cannot be executed without open remote shell! Use the openShell() method to start new shell!'
   private static final String MISSING_COMMAND_ID = 'Command results cannot be retrieved without valid command ID! The executeCommand() method returns ID of the started command!'
-
-  /**
-   * Executes command on a remote host.
-   *
-   * Internally, complete WinRM lifecycle is executed:
-   *
-   * 1. open shell for command execution
-   * 2. start command
-   * 3. if necessary wait for command exits
-   * 4. get command execution results
-   * 5. close shell
-   *
-   * @param command text of the command to execute.
-   * @param arguments command arguments.
-   * @return result of the command execution on a remote host.
-   */
-  CommandOutput execute(String command, String[] arguments = []) {
-    String commandId = null
-    try {
-      logger.debug "Starting execution ${command} command on remote host"
-      openShell()
-      commandId = executeCommand(command, arguments)
-      CommandOutput output = getCommandExecutionResults(commandId)
-      deleteShell()
-      logger.debug "Finished execution ${command} command on remote host"
-      return output
-    } catch (TimeoutException e) {
-      return stopExecution(commandId) {
-        logger.warn "Execution of the command [${command}] has been terminated by timeout!"
-        new CommandOutput(1, '', CMD_IS_STOPPED_BY_TIMEOUT, e)
-      }
-    } catch (Exception e) {
-      return stopExecution(commandId) {
-        logger.warn "Execution of the command [${command}] has been terminated by exception!"
-        new CommandOutput(1, '', CMD_IS_TERMINATED_BY_EXCEPTION, e)
-      }
-    }
-  }
 
   /**
    * Checks if shell is open for command execution on a remote host
@@ -275,44 +232,6 @@ class WinRMClient {
     }
   }
 
-  private CommandOutput getCommandExecutionResults(String commandId) {
-
-    CommandOutput outputResults = new CommandOutput(-1, '', '')
-
-    Thread thr = new Thread() {
-      void run() {
-        for (; !isInterrupted();) {
-          CommandOutput tempOutput = commandExecuteResults(commandId)
-          outputResults.with {
-            exitStatus = tempOutput.exitStatus
-            output += tempOutput.output
-            errorOutput = tempOutput.errorOutput
-            exception = tempOutput.exception
-          }
-          if (-1 != outputResults?.exitStatus && CMD_IS_RUNNING != outputResults?.errorOutput) {
-            break
-          }
-        }
-      }
-    }
-    thr.start()
-
-    try {
-      thr.join(shellTimeout)
-    } catch (InterruptedException e) {
-      thr.interrupt()
-      throw new Exception(e)
-    }
-
-    if (thr.isAlive()) {
-      thr.interrupt()
-      throw new TimeoutException()
-    }
-
-    outputResults
-
-  }
-
   private synchronized String sendHttpRequest(String request) {
 
     logger.debug "Sending http request to remote host"
@@ -345,18 +264,4 @@ class WinRMClient {
     httpBuilder.client.connectionManager.schemeRegistry.register(scheme)
     logger.debug 'Https connection is configured'
   }
-
-  private CommandOutput stopExecution(String commandId, Closure cl) {
-    if (commandId && shellId) {
-      try {
-        cleanupCommand(commandId)
-        deleteShell()
-      } catch(Exception e) {
-        logger.warn "Stopping of execution command id [${commandId}] has been terminated by exception!"
-        return new CommandOutput(1, '', CMD_STOP_IS_TERMINATED_BY_EXCEPTION, e)
-      }
-    }
-    cl()
-  }
-
 }

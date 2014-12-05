@@ -16,6 +16,8 @@
 
 package com.aestasit.infrastructure.winrm.client
 
+import static com.aestasit.infrastructure.winrm.client.util.Constants.CMD_IS_RUNNING
+
 /**
  * Results of the command execution:
  *
@@ -53,5 +55,9 @@ class CommandOutput {
    */
   boolean failed() {
     this.exitStatus != 0
+  }
+
+  boolean isCommandRunning() {
+    -1 == exitStatus && CMD_IS_RUNNING == errorOutput
   }
 }

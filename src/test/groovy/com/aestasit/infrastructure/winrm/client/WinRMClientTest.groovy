@@ -77,21 +77,12 @@ class WinRMClientTest {
     // response to 'ver' command execution
     httpTestServer.mockResponseData = WinRMClientTest.getClass().getResourceAsStream('/ExecutionResultsResponse.xml').text
     client.shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
-    CommandOutput executionResults = client.getCommandExecutionResults('6521B144-B2A2-4129-AE91-85D38F7B76BB')
+    CommandOutput executionResults = client.commandExecuteResults('6521B144-B2A2-4129-AE91-85D38F7B76BB')
     int expectedExitCode = 0
     assertEquals expectedExitCode, executionResults.exitStatus
 
     assertTrue executionResults.output.contains('Microsoft Windows [Version 6.1.7601]')
     assertTrue !executionResults.errorOutput
-  }
-
-  @Test(expected = TimeoutException.class)
-  void testGetCommandOutputByTimeout() {
-    // command execution has to be terminated by timeout after 5 seconds
-    httpTestServer.mockResponseData = WinRMClientTest.getClass().getResourceAsStream('/RunningExecutionResponse.xml').text
-    client.shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
-    client.shellTimeout = 5000l
-    client.getCommandExecutionResults('6521B144-B2A2-4129-AE91-85D38F7B76BB')
   }
 
   @Test
