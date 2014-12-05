@@ -109,6 +109,16 @@ class WinRMClient {
   }
 
   /**
+   * Checks if shell is open for command execution on a remote host
+   *
+   * @return <code>true</code> if shell has been opened by <code>openShell()</code> method
+   * and has not been closed by <code>deleteShell()</code> method, otherwise <code>false</code>
+   */
+  boolean isConnected() {
+    shellId
+  }
+
+  /**
    * Creates WinRM shell for further execution of remote commands.
    *
    * @return id of the opened shell.
@@ -230,6 +240,8 @@ class WinRMClient {
 
     logger.debug 'Close Shell Request processing is finished'
 
+    shellId = null
+
     !results?.'*:Body'?.text()
 
   }
@@ -240,7 +252,6 @@ class WinRMClient {
 
   /**
    * Initializes <code>WinRMClient</code> object.
-   * The method has to be invoked directly after instantiating of a <code>WinRMClient</code> object
    */
   private void initialize() {
     if (!toAddress) {
