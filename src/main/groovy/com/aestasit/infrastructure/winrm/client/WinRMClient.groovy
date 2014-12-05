@@ -42,7 +42,6 @@ import static groovyx.net.http.Method.POST
 @Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout', 'trustStrategy', 'verificationStrategy'])
 class WinRMClient {
 
-
   private final Logger logger = LoggerFactory.getLogger(getClass().getPackage().getName())
 
   String protocol = PROTOCOL_HTTP
@@ -61,15 +60,14 @@ class WinRMClient {
   private String shellId
   private HTTPBuilder httpBuilder
 
-
   private static final String MISSING_SHELL_ID = 'Command cannot be executed without open remote shell! Use the openShell() method to start new shell!'
   private static final String MISSING_COMMAND_ID = 'Command results cannot be retrieved without valid command ID! The executeCommand() method returns ID of the started command!'
 
   /**
-   * Checks if shell is open for command execution on a remote host
+   * Checks if shell is open for command execution on a remote host.
    *
    * @return <code>true</code> if shell has been opened by <code>openShell()</code> method
-   * and has not been closed by <code>deleteShell()</code> method, otherwise <code>false</code>
+   * and has not been closed by <code>deleteShell()</code> method, otherwise <code>false</code>.
    */
   boolean isConnected() {
     shellId
@@ -99,9 +97,9 @@ class WinRMClient {
   /**
    * Runs remote command in currently open shell.
    *
-   * @param command command text
-   * @param args arguments to run command
-   * @return command id corresponds to the transferred command
+   * @param command command text.
+   * @param args arguments to run command.
+   * @return command id corresponds to the transferred command.
    */
   String executeCommand(String command, String[] args = []) {
 
@@ -123,8 +121,8 @@ class WinRMClient {
   /**
    * Retrieves results of the command execution on a remote host.
    *
-   * @param commandId identify command id which output/error output will be retrieved
-   * @return CommandOutput containing output, error output, exit code of the command execution on a remote host
+   * @param commandId identify command id which output/error output will be retrieved.
+   * @return CommandOutput containing output, error output, exit code of the command execution on a remote host.
    */
   CommandOutput commandExecuteResults(String commandId) {
 
@@ -164,7 +162,7 @@ class WinRMClient {
   /**
    * Stops command execution on a remote host (Ctrl+C).
    *
-   * @param commandId id of the command which has to be cleaned
+   * @param commandId id of the command which has to be cleaned.
    */
   void cleanupCommand(String commandId) {
 
@@ -181,9 +179,9 @@ class WinRMClient {
   }
 
   /**
-   * Deletes shell releasing all resources allocated for the current shell on a remote host
+   * Deletes shell releasing all resources allocated for the current shell on a remote host.
    *
-   * @return <code>true</code> in case of successful shell closing, otherwise <code>false</code>
+   * @return <code>true</code> in case of successful shell closing, otherwise <code>false</code>.
    */
   boolean deleteShell() {
 
@@ -238,6 +236,7 @@ class WinRMClient {
 
     String responseXml = null
     httpBuilder.request(POST, TEXT) {
+
       headers.Accept = 'application/soap+xml; charset=utf-8'
       headers.'Content-Type' = "application/soap+xml; charset=utf-8"
       body = request
@@ -250,6 +249,7 @@ class WinRMClient {
         logger.warn "An error details: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}"
         throw new WinRMException(resp?.statusLine?.statusCode, resp?.entity?.content?.text)
       }
+
     }
 
     logger.debug "Finished processing sending http request"
