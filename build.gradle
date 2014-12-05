@@ -15,11 +15,11 @@ plugins {
 }
 
 group = 'com.aestasit.infrastructure.winrm'
-version = '0.3-SNAPSHOT'
+version = '0.4-SNAPSHOT'
 
-apply from: 'repos.gradle'
-apply from: 'sonar.gradle'
-apply from: 'docs.gradle'
+apply from: 'gradle/repos.gradle'
+apply from: 'gradle/sonar.gradle'
+apply from: 'gradle/docs.gradle'
 
 dependencies {
 
