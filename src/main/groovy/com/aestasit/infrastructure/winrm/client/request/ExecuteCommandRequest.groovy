@@ -60,7 +60,7 @@ class ExecuteCommandRequest extends WinRMRequest {
           'wsman:Selector'(Name: 'ShellId', "${shellId}")
         }
         'wsman:OptionSet'('xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance') {
-          'wsman:Option'(Name: 'WINRS_CONSOLEMODE_STDIN', 'FALSE')
+          'wsman:Option'(Name: 'WINRS_CONSOLEMODE_STDIN', 'TRUE')
         }
         'wsman:OperationTimeout'(timeout)
       }

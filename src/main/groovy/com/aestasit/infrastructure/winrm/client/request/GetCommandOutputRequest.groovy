@@ -60,7 +60,7 @@ class GetCommandOutputRequest extends WinRMRequest {
         'wsman:OperationTimeout'(timeout)
       }
       's:Body' {
-        'rsp:Receive'('xmlns:rsp': NMSP_URI_RSP, 'SequenceId': '0') {
+        'rsp:Receive'('xmlns:rsp': NMSP_URI_RSP) {
           'rsp:DesiredStream'('CommandId': commandId, 'stdout stderr')
         }
       }
