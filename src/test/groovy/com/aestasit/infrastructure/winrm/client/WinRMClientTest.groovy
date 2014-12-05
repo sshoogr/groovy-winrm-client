@@ -24,6 +24,7 @@ import org.junit.Test
 import java.util.concurrent.TimeoutException
 
 import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNull
 import static org.junit.Assert.assertTrue
 
 class WinRMClientTest {
@@ -94,5 +95,6 @@ class WinRMClientTest {
     Boolean shellClosed = client.deleteShell()
 
     assertTrue shellClosed
+    assertNull client.shellId
   }
 }

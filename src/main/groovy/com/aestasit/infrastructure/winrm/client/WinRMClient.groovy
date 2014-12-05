@@ -94,6 +94,10 @@ class WinRMClient {
     }
   }
 
+  boolean isConnected(){
+    shellId
+  }
+
   private void configureHttpsConnection() {
     logger.debug 'Configuring Https connection'
     Scheme scheme = new Scheme("https", new SSLSocketFactory(trustStrategy.strategy, verificationStrategy.verifier), 443)
@@ -252,6 +256,8 @@ class WinRMClient {
     GPathResult results = new XmlSlurper().parseText(response)
 
     logger.debug 'Close Shell Request processing is finished'
+
+    shellId = null
 
     !results?.'*:Body'?.text()
   }
