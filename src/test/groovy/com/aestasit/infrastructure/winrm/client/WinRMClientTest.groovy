@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNull
 import static org.junit.Assert.assertTrue
 
 /**
- * WinRM cleanup request construction test.
+ * <code>WinRMClient</code> tests.
  *
  * @author Sergey Korenko
  */

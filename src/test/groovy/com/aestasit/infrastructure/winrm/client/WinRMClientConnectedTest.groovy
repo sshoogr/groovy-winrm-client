@@ -20,6 +20,11 @@ import org.junit.Test
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
 
+/**
+ * <code>WinRMClient</code> tests.
+ *
+ * @author Sergey Korenko
+ */
 class WinRMClientConnectedTest {
 
   @Test
@@ -29,4 +34,5 @@ class WinRMClientConnectedTest {
     client.shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
     assertTrue client.connected
   }
+
 }
