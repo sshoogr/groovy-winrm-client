@@ -20,18 +20,20 @@ import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
 
 /**
- * The class represents request to open WinRM shell
+ * The class represents request to open WinRM shell.
  *
  * @author Sergey Korenko
  */
 class OpenShellRequest extends WinRMRequest {
+
   OpenShellRequest(URL toAddress, int timeout = 60) {
     super(toAddress, timeout)
   }
 
   @Override
   String toString() {
-    def writer = new StringWriter()
+
+    StringWriter writer = new StringWriter()
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
@@ -62,5 +64,7 @@ class OpenShellRequest extends WinRMRequest {
     }
 
     writer.toString()
+
   }
+
 }

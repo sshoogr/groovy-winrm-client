@@ -22,34 +22,35 @@ import org.junit.Test
 import static org.junit.Assert.assertNotNull
 
 /**
- * Creation WinRMClient tests
+ * <code>WinRMClient</code> creation tests.
  *
  * @author Sergey Korenko
  */
 class ClientCreationTest {
-  @Test(expected=WinRMException.class)
-  void testEmptyHost(){
-    def client = new WinRMClient(user:'vagrant', password:'vagrant')
+
+  @Test(expected = WinRMException.class)
+  void testEmptyHost() {
+    def client = new WinRMClient(user: 'vagrant', password: 'vagrant')
     client.initialize()
   }
 
-  @Test(expected=WinRMException.class)
-  void testEmptyUser(){
-    def client = new WinRMClient(host:'192.168.56.101', password:'vagrant')
+  @Test(expected = WinRMException.class)
+  void testEmptyUser() {
+    def client = new WinRMClient(host: '192.168.56.101', password: 'vagrant')
     client.initialize()
   }
 
-  @Test(expected=WinRMException.class)
-  void testEmptyPassword(){
-    def client = new WinRMClient(host:'192.168.56.101', user:'vagrant')
+  @Test(expected = WinRMException.class)
+  void testEmptyPassword() {
+    def client = new WinRMClient(host: '192.168.56.101', user: 'vagrant')
     client.initialize()
   }
 
   @Test
-  void testCorrectParameters(){
-    def client = new WinRMClient(host:'192.168.56.101', user:'vagrant', password:'vagrant', port:5985)
+  void testCorrectParameters() {
+    def client = new WinRMClient(host: '192.168.56.101', user: 'vagrant', password: 'vagrant', port: 5985)
     client.initialize()
-
     assertNotNull client.httpBuilder
   }
+
 }

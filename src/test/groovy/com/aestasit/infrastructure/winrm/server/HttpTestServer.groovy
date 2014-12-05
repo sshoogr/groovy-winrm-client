@@ -31,8 +31,14 @@ import javax.servlet.http.HttpServletResponse
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.apache.commons.io.IOUtils.write
 
+/**
+ * HTTP server implementation for use during WinRM tests.
+ *
+ * @author Sergey Korenko
+ */
 @Ignore
 public class HttpTestServer {
+
   public static final int HTTP_PORT = 5985
   public static final int HTTPS_PORT = 5986
 

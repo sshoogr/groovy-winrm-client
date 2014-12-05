@@ -20,13 +20,20 @@ import org.junit.Test
 
 import static org.junit.Assert.assertTrue
 
-class GetCommandOutputRequestTest extends BaseCreateRequest {
+/**
+ * WinRM "get command output" request construction test.
+ *
+ * @author Sergey Korenko
+ */
+class GetCommandOutputRequestTest extends BaseCreateRequestTest {
+
   @Test
-  void testRequestCreation(){
-    def requestString = new GetCommandOutputRequest( url, shellId, commandId).toString()
+  void testRequestCreation() {
+    def requestString = new GetCommandOutputRequest(url, shellId, commandId).toString()
     assertTrue 'Get command output request has to include ShellId reference',
-            requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
-    assertTrue  'Get command output request has to include CommandId reference',
-            requestString.contains("<rsp:DesiredStream CommandId='${commandId}'>stdout stderr</rsp:DesiredStream>")
+        requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
+    assertTrue 'Get command output request has to include CommandId reference',
+        requestString.contains("<rsp:DesiredStream CommandId='${commandId}'>stdout stderr</rsp:DesiredStream>")
   }
+
 }

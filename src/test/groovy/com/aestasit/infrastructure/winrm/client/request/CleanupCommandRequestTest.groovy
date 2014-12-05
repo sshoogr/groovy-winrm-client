@@ -20,13 +20,20 @@ import org.junit.Test
 
 import static org.junit.Assert.assertTrue
 
-class CleanupCommandRequestTest extends BaseCreateRequest {
+/**
+ * WinRM cleanup request construction test.
+ *
+ * @author Sergey Korenko
+ */
+class CleanupCommandRequestTest extends BaseCreateRequestTest {
+
   @Test
   void testRequestCreation() {
     String requestString = new CleanupCommandRequest(url, shellId, commandId).toString()
     assertTrue 'Cleanup command request has to include ShellId reference',
-            requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
+        requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
     assertTrue 'Cleanup command request  has to include CommandId reference',
-            requestString.contains("<rsp:Signal xmlns:rsp='http://schemas.microsoft.com/wbem/wsman/1/windows/shell' CommandId='${commandId}'>")
+        requestString.contains("<rsp:Signal xmlns:rsp='http://schemas.microsoft.com/wbem/wsman/1/windows/shell' CommandId='${commandId}'>")
   }
+
 }

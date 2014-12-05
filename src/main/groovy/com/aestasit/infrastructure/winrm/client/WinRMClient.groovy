@@ -303,7 +303,6 @@ class WinRMClient {
       CommandOutput output = getCommandExecutionResults(commandId)
       deleteShell()
       logger.debug "Finished execution ${command} command on remote host"
-
       output
     } catch (TimeoutException e) {
       stopExecution(commandId) {
@@ -328,7 +327,6 @@ class WinRMClient {
         return new CommandOutput(1, '', CMD_STOP_IS_TERMINATED_BY_EXCEPTION, e)
       }
     }
-
     cl()
   }
 }

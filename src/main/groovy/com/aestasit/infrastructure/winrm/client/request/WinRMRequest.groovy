@@ -17,12 +17,13 @@
 package com.aestasit.infrastructure.winrm.client.request
 
 /**
- * Base request class
+ * Base request class.
  *
  * @author Sergey Korenko
  */
 abstract class WinRMRequest {
-  /// constants used during composing WinRM request
+
+  /// Constants used during composing WinRM request.
   static String NMSP_URI_S = 'http://www.w3.org/2003/05/soap-envelope'
   static String NMSP_URI_WSA = 'http://schemas.xmlsoap.org/ws/2004/08/addressing'
   static String NMSP_URI_WSMAN = 'http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd'
@@ -45,4 +46,5 @@ abstract class WinRMRequest {
     this.toAddress = toAddress
     this.timeout = "PT${timeout}S"
   }
+
 }

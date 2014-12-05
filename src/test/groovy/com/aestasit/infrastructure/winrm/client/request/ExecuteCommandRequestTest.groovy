@@ -15,30 +15,38 @@
  */
 
 package com.aestasit.infrastructure.winrm.client.request
+
 import org.junit.Test
 
 import static org.junit.Assert.assertTrue
 
-class ExecuteCommandRequestTest extends BaseCreateRequest {
+/**
+ * WinRM execute request construction test.
+ *
+ * @author Sergey Korenko
+ */
+class ExecuteCommandRequestTest extends BaseCreateRequestTest {
+
   @Test
   void testRequestWithoutArguments() {
     String requestString = new ExecuteCommandRequest(url, shellId, 'ver').toString()
     assertTrue 'execute command request has to include ShellId reference',
-            requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
+        requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
     assertTrue 'execute command request has to include command text <rsp:Command>___COMMAND___</rsp:Command>',
-            requestString.contains("<rsp:Command>ver</rsp:Command>")
+        requestString.contains("<rsp:Command>ver</rsp:Command>")
   }
 
   @Test
   void testRequestArguments() {
     String requestString = new ExecuteCommandRequest(url, shellId, 'ping', ['-n', '12'] as String[]).toString()
     assertTrue 'execute command request has to include ShellId reference',
-            requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
+        requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
     assertTrue 'execute command request has to include command text <rsp:Command>___COMMAND___</rsp:Command>',
-            requestString.contains("<rsp:Command>ping</rsp:Command>")
+        requestString.contains("<rsp:Command>ping</rsp:Command>")
     assertTrue 'execute command request has to include command attribute "-n"',
-            requestString.contains("<rsp:Arguments>-n</rsp:Arguments>")
+        requestString.contains("<rsp:Arguments>-n</rsp:Arguments>")
     assertTrue 'execute command request has to include command attribute "12"',
-            requestString.contains("<rsp:Arguments>12</rsp:Arguments>")
+        requestString.contains("<rsp:Arguments>12</rsp:Arguments>")
   }
+
 }

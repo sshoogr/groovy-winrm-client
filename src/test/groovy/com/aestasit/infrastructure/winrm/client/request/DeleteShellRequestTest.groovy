@@ -15,14 +15,23 @@
  */
 
 package com.aestasit.infrastructure.winrm.client.request
+
 import org.junit.Test
 
 import static org.junit.Assert.assertTrue
-class DeleteShellRequestTest extends BaseCreateRequest {
+
+/**
+ * WinRM delete request construction test.
+ *
+ * @author Sergey Korenko
+ */
+class DeleteShellRequestTest extends BaseCreateRequestTest {
+
   @Test
   void testRequestCreation() {
     String requestString = new DeleteShellRequest(url, shellId).toString()
     assertTrue 'Delete shell request has to include ShellId reference',
-            requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
+        requestString.contains("<wsman:Selector Name='ShellId'>${shellId}</wsman:Selector>")
   }
+
 }
