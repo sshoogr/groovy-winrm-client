@@ -15,10 +15,17 @@
  */
 
 package com.aestasit.infrastructure.winrm.client.request
+
 import com.aestasit.infrastructure.winrm.client.util.Utils
 
-class BaseCreateRequest {
-  URL url = Utils.buildUrl('http','192.168.56.102', 5985)
+
+/**
+ * Base test request class.
+ *
+ * @author Sergey Korenko
+ */
+abstract class BaseCreateRequestTest {
+  URL url = Utils.buildUrl('http', '192.168.56.102', 5985)
   String shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
   String commandId = '6521B144-B2A2-4129-AE91-85D38F7B76BB'
 }

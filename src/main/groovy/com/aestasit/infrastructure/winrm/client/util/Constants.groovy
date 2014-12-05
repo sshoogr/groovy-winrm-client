@@ -17,7 +17,7 @@
 package com.aestasit.infrastructure.winrm.client.util
 
 /**
- * Constants for groovy-winrm-client
+ * Library constants.
  *
  * @author Sergey Korenko
  */

@@ -20,11 +20,12 @@ import com.aestasit.infrastructure.winrm.client.util.Utils
 import groovy.xml.MarkupBuilder
 
 /**
- * Request to get command output
+ * Request to get command output.
  *
  * @author Sergey Korenko
  */
 class GetCommandOutputRequest extends WinRMRequest {
+
   String commandId
   String shellId
 
@@ -36,7 +37,8 @@ class GetCommandOutputRequest extends WinRMRequest {
 
   @Override
   String toString() {
-    def writer = new StringWriter()
+
+    StringWriter writer = new StringWriter()
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
@@ -65,5 +67,7 @@ class GetCommandOutputRequest extends WinRMRequest {
     }
 
     writer.toString()
+
   }
+
 }

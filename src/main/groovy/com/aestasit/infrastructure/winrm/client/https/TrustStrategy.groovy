@@ -27,17 +27,22 @@ import java.security.cert.X509Certificate
  * @author Sergey Korenko
  */
 enum TrustStrategy {
+
   ALLOW_NONE(null),
   ALLOW_SELF_SIGNED(new TrustSelfSignedStrategy()),
-  ALLOW_ALL(new org.apache.http.conn.ssl.TrustStrategy() {
-    @Override
-    public boolean isTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
-      true
-    }
-  })
+  ALLOW_ALL(new TrustAllStrategy())
 
   private TrustStrategy(org.apache.http.conn.ssl.TrustStrategy strategy) {
     this.strategy = strategy
   }
+
   org.apache.http.conn.ssl.TrustStrategy strategy
+
+  public static class TrustAllStrategy implements org.apache.http.conn.ssl.TrustStrategy {
+    @Override
+    public boolean isTrusted(final X509Certificate[] chain, final String authType) throws CertificateException {
+      true
+    }
+  }
+
 }

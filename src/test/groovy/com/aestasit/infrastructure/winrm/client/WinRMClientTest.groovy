@@ -15,6 +15,7 @@
  */
 
 package com.aestasit.infrastructure.winrm.client
+
 import com.aestasit.infrastructure.winrm.server.HttpTestServer
 import org.junit.After
 import org.junit.Before
@@ -27,14 +28,19 @@ import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNull
 import static org.junit.Assert.assertTrue
 
+/**
+ * WinRM cleanup request construction test.
+ *
+ * @author Sergey Korenko
+ */
 class WinRMClientTest {
-  HttpTestServer httpTestServer
 
+  HttpTestServer httpTestServer
   static WinRMClient client
 
   @BeforeClass
-  static void initClient(){
-    client = new WinRMClient(protocol:'http', host:'127.0.0.1', user:'vagrant', password:'vagrant', port:5985)
+  static void initClient() {
+    client = new WinRMClient(protocol: 'http', host: '127.0.0.1', user: 'vagrant', password: 'vagrant', port: 5985)
     client.initialize()
   }
 
@@ -79,7 +85,7 @@ class WinRMClientTest {
     assertTrue !executionResults.errorOutput
   }
 
-  @Test(expected=TimeoutException.class)
+  @Test(expected = TimeoutException.class)
   void testGetCommandOutputByTimeout() {
     // command execution has to be terminated by timeout after 5 seconds
     httpTestServer.mockResponseData = WinRMClientTest.getClass().getResourceAsStream('/RunningExecutionResponse.xml').text

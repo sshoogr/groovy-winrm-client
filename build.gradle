@@ -15,7 +15,7 @@ plugins {
 }
 
 group = 'com.aestasit.infrastructure.winrm'
-version = '0.2-SNAPSHOT'
+version = '0.3-SNAPSHOT'
 
 apply from: 'repos.gradle'
 apply from: 'sonar.gradle'
@@ -32,9 +32,8 @@ dependencies {
   compile "commons-io:commons-io:${commonsIOVersion}"
   compile "commons-codec:commons-codec:${commonsCodecVersion}"
 
-  testCompile 'commons-io:commons-io:1.4'
-  testCompile 'junit:junit:4.11'
-  testCompile 'org.mortbay.jetty:jetty:6.1.26'
+  testCompile "junit:junit:${junitVersion}"
+  testCompile "org.mortbay.jetty:jetty:${jettyVersion}"
 
 }
 

@@ -35,7 +35,8 @@ class DeleteShellRequest extends WinRMRequest {
 
   @Override
   String toString() {
-    def writer = new StringWriter()
+
+    StringWriter writer = new StringWriter()
     MarkupBuilder xml = new MarkupBuilder(writer)
 
     xml.'s:Envelope'('xmlns:s': NMSP_URI_S,
@@ -60,5 +61,7 @@ class DeleteShellRequest extends WinRMRequest {
     }
 
     writer.toString()
+
   }
+
 }

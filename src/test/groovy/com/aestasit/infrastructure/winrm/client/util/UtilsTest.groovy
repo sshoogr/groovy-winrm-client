@@ -19,16 +19,17 @@ package com.aestasit.infrastructure.winrm.client.util
 import org.junit.Test
 
 /**
- * Util class tests
+ * <code>Utils</code> class tests.
  *
  * @author Sergey Korenko
  */
 class UtilsTest extends GroovyTestCase {
-  @Test
-  void testUrlBuild(){
-    String expected = 'http://192.168.33.17:5985/wsman'
-    String calculated = Utils.buildUrl('http','192.168.33.17', 5985).toString()
 
+  @Test
+  void testUrlBuild() {
+    String expected = 'http://192.168.33.17:5985/wsman'
+    String calculated = Utils.buildUrl('http', '192.168.33.17', 5985).toString()
     assertEquals expected, calculated
   }
+
 }

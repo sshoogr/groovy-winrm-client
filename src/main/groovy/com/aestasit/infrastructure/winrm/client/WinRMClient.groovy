@@ -41,8 +41,9 @@ import static groovyx.net.http.Method.POST
  *
  * @author Sergey Korenko
  */
-@Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout'])
+@Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout', 'trustStrategy', 'verificationStrategy'])
 class WinRMClient {
+
 
   private final Logger logger = LoggerFactory.getLogger(getClass().getPackage().getName())
 
@@ -52,93 +53,94 @@ class WinRMClient {
   String user
   String password
 
-  /** Timeout for open shell*/
+  /** Timeout for shell opening in seconds. */
   long shellTimeout = SHELL_DEFAULT_TIMEOUT
 
-  /** Timeout of a single WinRM request in seconds*/
+  /** Timeout for single WinRM request in seconds. */
   int requestTimeout = REQUEST_DEFAULT_TIMEOUT
-
-  URL toAddress
-  String shellId
-  HTTPBuilder httpBuilder
 
   TrustStrategy trustStrategy = TrustStrategy.ALLOW_SELF_SIGNED
   HostStrategy verificationStrategy = HostStrategy.ALLOW_ALL
 
+  private URL toAddress
+  private String shellId
+  private HTTPBuilder httpBuilder
+
+
+  private static final String MISSING_SHELL_ID = 'Command cannot be executed without open remote shell! Use the openShell() method to start new shell!'
+  private static final String MISSING_COMMAND_ID = 'Command results cannot be retrieved without valid command ID! The executeCommand() method returns ID of the started command!'
+
   /**
-   * Initializes <code>WinRMClient</code> object.
-   * The method has to be invoked directly after instantiating of a <code>WinRMClient</code> object
+   * Executes command on a remote host.
+   *
+   * Internally, complete WinRM lifecycle is executed:
+   *
+   * 1. open shell for command execution
+   * 2. start command
+   * 3. if necessary wait for command exits
+   * 4. get command execution results
+   * 5. close shell
+   *
+   * @param command text of the command to execute.
+   * @param arguments command arguments.
+   * @return result of the command execution on a remote host.
    */
-  void initialize() {
-    if (null == host) {
-      throw new WinRMException('WinRM Host has to be initialized')
-    }
-    if (null == user) {
-      throw new WinRMException('WinRM Username has to be initialized')
-    }
-    if (null == password) {
-      throw new WinRMException('WinRM Password has to be initialized')
-    }
-
-    if (!toAddress) {
-      toAddress = Utils.buildUrl(protocol, host, port)
-    }
-
-    if (!httpBuilder) {
-      httpBuilder = new HTTPBuilder(toAddress.toURI())
-      httpBuilder.auth.basic user, password
-
-      if (protocol == PROTOCOL_HTTPS) {
-        configureHttpsConnection()
+  CommandOutput execute(String command, String[] arguments = []) {
+    String commandId = null
+    try {
+      logger.debug "Starting execution ${command} command on remote host"
+      openShell()
+      commandId = executeCommand(command, arguments)
+      CommandOutput output = getCommandExecutionResults(commandId)
+      deleteShell()
+      logger.debug "Finished execution ${command} command on remote host"
+      return output
+    } catch (TimeoutException e) {
+      return stopExecution(commandId) {
+        logger.warn "Execution of the command [${command}] has been terminated by timeout!"
+        new CommandOutput(1, '', CMD_IS_STOPPED_BY_TIMEOUT, e)
+      }
+    } catch (Exception e) {
+      return stopExecution(commandId) {
+        logger.warn "Execution of the command [${command}] has been terminated by exception!"
+        new CommandOutput(1, '', CMD_IS_TERMINATED_BY_EXCEPTION, e)
       }
     }
-  }
-
-  boolean isConnected(){
-    shellId
-  }
-
-  private void configureHttpsConnection() {
-    logger.debug 'Configuring Https connection'
-    Scheme scheme = new Scheme("https", new SSLSocketFactory(trustStrategy.strategy, verificationStrategy.verifier), 443)
-    httpBuilder.client.connectionManager.schemeRegistry.register(scheme)
-    logger.debug 'Https connection is configured'
   }
 
   /**
    * Creates WinRM shell for further execution of remote commands.
    *
-   * @return id of the open shell
+   * @return id of the opened shell.
    */
   String openShell() {
+    initialize()
     logger.debug 'Sending request to create WinRM Shell'
-
     String request = new OpenShellRequest(toAddress, requestTimeout).toString()
     String response = sendHttpRequest(request)
     GPathResult results = new XmlSlurper().parseText(response)
     shellId = results?.'*:Body'?.'*:ResourceCreated'?.'*:ReferenceParameters'?.'*:SelectorSet'?.'*:Selector'?.find {
       it.@Name == 'ShellId'
     }?.text()
-
     logger.debug "'Create WinRM Shell' request has been processed"
     if (!shellId) {
       logger.warn "Remote shell creation failed (shellId = null)"
     }
-
     shellId
   }
 
   /**
-   * Runs command
+   * Runs remote command in currently open shell.
    *
    * @param command command text
    * @param args arguments to run command
    * @return command id corresponds to the transferred command
    */
   String executeCommand(String command, String[] args = []) {
+
     logger.debug "Sending request to execute command in previously open shell with id=${shellId}"
 
-    Validate.notNull(shellId, 'Command cannot be executed when an open remote shell is not available')
+    Validate.notNull(shellId, MISSING_SHELL_ID)
 
     String request = new ExecuteCommandRequest(toAddress, shellId, command, args, requestTimeout).toString()
     String response = sendHttpRequest(request)
@@ -148,9 +150,122 @@ class WinRMClient {
     logger.debug "Request to execute command has been finsihed in previously open shell with id=${shellId}"
 
     commandId
+
+  }
+
+  /**
+   * Retrieves results of the command execution on a remote host.
+   *
+   * @param commandId identify command id which output/error output will be retrieved
+   * @return CommandOutput containing output, error output, exit code of the command execution on a remote host
+   */
+  CommandOutput commandExecuteResults(String commandId) {
+
+    logger.debug "Reading output of command with id =[${commandId}] from shell with id=${shellId}"
+
+    Validate.notNull(shellId, MISSING_SHELL_ID)
+    Validate.notNull(commandId, MISSING_COMMAND_ID)
+
+    String request = new GetCommandOutputRequest(toAddress, shellId, commandId, requestTimeout).toString()
+    String response = sendHttpRequest(request)
+    GPathResult results = new XmlSlurper().parseText(response)
+
+    String commandOutputArr = ''
+    String errOutputArr = ''
+
+    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
+      it.@Name == 'stdout' && it.@CommandId == commandId
+    }?.each { commandOutputArr += new String(it.text().decodeBase64()) }
+
+    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
+      it.@Name == 'stderr' && it.@CommandId == commandId
+    }?.each { errOutputArr += new String(it.text().decodeBase64()) }
+
+    if (results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.find {
+      it.@CommandId == commandId && it.@State == 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/CommandState/Done'
+    }) {
+      Integer exitStatus = results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.'*:ExitCode'?.text()?.toInteger()
+      logger.debug "retrieve command output of command with id =[${commandId}] has been processed"
+      return new CommandOutput(exitStatus, commandOutputArr, errOutputArr)
+    } else {
+      logger.debug "command with id =[${commandId}] from shell with id=${shellId} is still RUNNING"
+      return new CommandOutput(-1, '', CMD_IS_RUNNING)
+    }
+
+  }
+
+  /**
+   * Stops command execution on a remote host (Ctrl+C).
+   *
+   * @param commandId id of the command which has to be cleaned
+   */
+  void cleanupCommand(String commandId) {
+
+    logger.debug "Release all external and internal WinRM resources for shell with id=${shellId} and command id = [${commandId}]"
+
+    Validate.notNull(shellId, MISSING_SHELL_ID)
+    Validate.notNull(commandId, MISSING_COMMAND_ID)
+
+    String request = new CleanupCommandRequest(toAddress, shellId, commandId, requestTimeout).toString()
+    sendHttpRequest(request)
+
+    logger.debug 'Release all external and internal WinRM resources'
+
+  }
+
+  /**
+   * Deletes shell releasing all resources allocated for the current shell on a remote host
+   *
+   * @return <code>true</code> in case of successful shell closing, otherwise <code>false</code>
+   */
+  boolean deleteShell() {
+
+    logger.debug "Sending Close shell request with id = ${shellId}"
+
+    Validate.notNull(shellId, MISSING_SHELL_ID)
+
+    String request = new DeleteShellRequest(toAddress, shellId, requestTimeout).toString()
+    String response = sendHttpRequest(request)
+    GPathResult results = new XmlSlurper().parseText(response)
+
+    logger.debug 'Close Shell Request processing is finished'
+
+    !results?.'*:Body'?.text()
+
+  }
+
+  /*
+   * PRIVATE METHODS
+   */
+
+  /**
+   * Initializes <code>WinRMClient</code> object.
+   * The method has to be invoked directly after instantiating of a <code>WinRMClient</code> object
+   */
+  private void initialize() {
+    if (!toAddress) {
+      if (!host) {
+        throw new WinRMException('WinRM host has to be initialized!')
+      }
+      toAddress = Utils.buildUrl(protocol, host, port)
+    }
+    if (!httpBuilder) {
+      httpBuilder = new HTTPBuilder(toAddress.toURI())
+      if (!user) {
+        throw new WinRMException('WinRM username has to be initialized!')
+      }
+      if (!password) {
+        throw new WinRMException('WinRM password has to be initialized!')
+      }
+      httpBuilder.auth.basic user, password
+      if (protocol == PROTOCOL_HTTPS) {
+        configureHttpsConnection()
+      }
+    }
   }
 
   private CommandOutput getCommandExecutionResults(String commandId) {
+
     CommandOutput outputResults = new CommandOutput(-1, '', '')
 
     Thread thr = new Thread() {
@@ -184,90 +299,12 @@ class WinRMClient {
     }
 
     outputResults
-  }
 
-  /**
-   * Retrieves results of the command execution on a remote host
-   *
-   * @param commandId identify command id which output/error output will be retrieved
-   * @return CommandOutput containing output, error output, exit code of the command execution on a remote host
-   */
-  CommandOutput commandExecuteResults(String commandId) {
-    logger.debug "Reading output of command with id =[${commandId}] from shell with id=${shellId}"
-
-    Validate.notNull(shellId, 'Command cannot be executed when an open remote shell is not available (shellId == null)')
-    Validate.notNull(commandId, 'Undefined command cannot be executed (commandId == null)')
-
-    String request = new GetCommandOutputRequest(toAddress, shellId, commandId, requestTimeout).toString()
-    String response = sendHttpRequest(request)
-    GPathResult results = new XmlSlurper().parseText(response)
-    String commandOutputArr = ''
-    String errOutputArr = ''
-    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
-      it.@Name == 'stdout' && it.@CommandId == commandId
-    }?.each { commandOutputArr += new String(it.text().decodeBase64()) }
-    results?.'*:Body'?.'*:ReceiveResponse'?.'*:Stream'?.findAll {
-      it.@Name == 'stderr' && it.@CommandId == commandId
-    }?.each { errOutputArr += new String(it.text().decodeBase64()) }
-
-    if (results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.find {
-      it.@CommandId == commandId && it.@State == 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/CommandState/Done'
-    }) {
-      Integer exitStatus = results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.'*:ExitCode'?.text()?.toInteger()
-
-      logger.debug "retrieve command output of command with id =[${commandId}] has been processed"
-
-      new CommandOutput(exitStatus, commandOutputArr, errOutputArr)
-    } else {
-      logger.debug "command with id =[${commandId}] from shell with id=${shellId} is still RUNNING"
-      new CommandOutput(-1, '', CMD_IS_RUNNING)
-    }
-  }
-
-  /**
-   * Stops command execution on a remote host(Ctrl+C)
-   *
-   * @param commandId id of the command which has to be cleaned
-   */
-  void cleanupCommand(String commandId) {
-    logger.debug "Release all external and internal WinRM resources for shell with id=${shellId} and command id = [${commandId}]"
-
-    Validate.notNull(shellId, 'Clenup command cannot be executed when an open remote shell is not available (shellId == null)')
-    Validate.notNull(commandId, 'Cleanup command cannot be executed if command is not defined (commandId == null)')
-
-    String request = new CleanupCommandRequest(toAddress, shellId, commandId, requestTimeout).toString()
-    sendHttpRequest(request)
-
-    logger.debug 'Release all external and internal WinRM resources'
-  }
-
-  /**
-   * Deletes shell releasing all resources allocated for the current shell on a remote host
-   *
-   * @return <code>true</code> in case of successful shell closing, otherwise <code>false</code>
-   */
-  boolean deleteShell() {
-    logger.debug "Sending Close shell request with id = ${shellId}"
-
-    Validate.notNull(shellId, 'Deleting remote shell cannot be executed when shell is undefined (shellId == null)')
-
-    String request = new DeleteShellRequest(toAddress, shellId, requestTimeout).toString()
-    String response = sendHttpRequest(request)
-    GPathResult results = new XmlSlurper().parseText(response)
-
-    logger.debug 'Close Shell Request processing is finished'
-
-    shellId = null
-
-    !results?.'*:Body'?.text()
   }
 
   private synchronized String sendHttpRequest(String request) {
-    logger.debug "Sending http request to remote host"
 
-    if (!httpBuilder) {
-      throw new WinRMException('Request over HTTP(S) cannot be sent! Probably _WinRMClient.initialize() method has to be invoked after creation of WinRMClient object')
-    }
+    logger.debug "Sending http request to remote host"
 
     String responseXml = null
     httpBuilder.request(POST, TEXT) {
@@ -288,40 +325,14 @@ class WinRMClient {
     logger.debug "Finished processing sending http request"
 
     responseXml
+
   }
 
-  /**
-   * Executes command on a remote host.
-   * Internally, complete WinRM lifecycle is executed
-   * < open shell for command execution - start command - if necessary wait for command exits -
-   * get command execution results - close shell
-   *
-   * @param command text of the command to execute
-   * @param arguments command arguments
-   * @return result of the command execution on a remote host
-   */
-  CommandOutput execute(String command, String[] arguments = []) {
-    String commandId = null
-    try {
-      logger.debug "Starting execution ${command} command on remote host"
-      openShell()
-      commandId = executeCommand(command, arguments)
-      CommandOutput output = getCommandExecutionResults(commandId)
-      deleteShell()
-      logger.debug "Finished execution ${command} command on remote host"
-
-      output
-    } catch (TimeoutException e) {
-      stopExecution(commandId) {
-        logger.warn "Execution of the command [${command}] has been terminated by timeout!"
-        new CommandOutput(1, '', CMD_IS_STOPPED_BY_TIMEOUT, e)
-      }
-    } catch (Exception e) {
-      stopExecution(commandId) {
-        logger.warn "Execution of the command [${command}] has been terminated by exception!"
-        new CommandOutput(1, '', CMD_IS_TERMINATED_BY_EXCEPTION, e)
-      }
-    }
+  private void configureHttpsConnection() {
+    logger.debug 'Configuring Https connection'
+    Scheme scheme = new Scheme("https", new SSLSocketFactory(trustStrategy.strategy, verificationStrategy.verifier), 443)
+    httpBuilder.client.connectionManager.schemeRegistry.register(scheme)
+    logger.debug 'Https connection is configured'
   }
 
   private CommandOutput stopExecution(String commandId, Closure cl) {
@@ -334,7 +345,7 @@ class WinRMClient {
         return new CommandOutput(1, '', CMD_STOP_IS_TERMINATED_BY_EXCEPTION, e)
       }
     }
-
     cl()
   }
+
 }

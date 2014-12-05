@@ -20,16 +20,23 @@ import org.junit.Test
 
 import static org.junit.Assert.assertTrue
 
-class OpenShellRequestTest extends BaseCreateRequest {
+/**
+ * WinRM "open shell" request construction test.
+ *
+ * @author Sergey Korenko
+ */
+
+class OpenShellRequestTest extends BaseCreateRequestTest {
+
   @Test
-  void testRequestCreation(){
+  void testRequestCreation() {
     def requestString = new OpenShellRequest(url).toString()
     assertTrue 'create shell request has to include shell reference',
-            requestString.contains("<rsp:Shell xmlns:rsp='http://schemas.microsoft.com/wbem/wsman/1/windows/shell'>")
-    assertTrue  'create shell request has to include CommandId stdin',
-            requestString.contains("<rsp:InputStreams>stdin</rsp:InputStreams>")
-    assertTrue  'create shell request has to include stdout stderr',
-            requestString.contains("<rsp:OutputStreams>stdout stderr</rsp:OutputStreams>")
+        requestString.contains("<rsp:Shell xmlns:rsp='http://schemas.microsoft.com/wbem/wsman/1/windows/shell'>")
+    assertTrue 'create shell request has to include CommandId stdin',
+        requestString.contains("<rsp:InputStreams>stdin</rsp:InputStreams>")
+    assertTrue 'create shell request has to include stdout stderr',
+        requestString.contains("<rsp:OutputStreams>stdout stderr</rsp:OutputStreams>")
   }
 
 }
