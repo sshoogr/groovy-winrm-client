@@ -154,7 +154,7 @@ class WinRMClient {
       return new CommandOutput(exitStatus, commandOutputArr, errOutputArr)
     } else {
       logger.debug "command with id =[${commandId}] from shell with id=${shellId} is still RUNNING"
-      return new CommandOutput(-1, '', CMD_IS_RUNNING)
+      return new CommandOutput(-1, commandOutputArr, CMD_IS_RUNNING)
     }
 
   }
