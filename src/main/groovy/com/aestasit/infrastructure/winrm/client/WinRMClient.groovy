@@ -39,7 +39,7 @@ import static groovyx.net.http.Method.POST
  *
  * @author Sergey Korenko
  */
-@Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'shellTimeout', 'requestTimeout', 'trustStrategy', 'verificationStrategy'])
+@Canonical(includes = ['protocol', 'host', 'port', 'user', 'password', 'requestTimeout', 'trustStrategy', 'verificationStrategy'])
 class WinRMClient {
 
   private final Logger logger = LoggerFactory.getLogger(getClass().getPackage().getName())
