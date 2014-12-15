@@ -22,8 +22,6 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 
-import java.util.concurrent.TimeoutException
-
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNull
 import static org.junit.Assert.assertTrue
@@ -69,7 +67,7 @@ class WinRMClientTest {
     client.shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
     String expectedCommandId = '6521B144-B2A2-4129-AE91-85D38F7B76BB'
     String receivedCommandId = client.executeCommand('ver')
-    assertEquals 'Wrong command id is got', expectedCommandId, receivedCommandId
+    assertEquals 'Wrong command id returned by server!', expectedCommandId, receivedCommandId
   }
 
   @Test
@@ -81,7 +79,7 @@ class WinRMClientTest {
     int expectedExitCode = 0
     assertEquals expectedExitCode, executionResults.exitStatus
 
-    assertTrue executionResults.output.contains('Microsoft Windows [Version 6.1.7601]')
+    assertTrue executionResults.output.contains('Microsoft Windows')
     assertTrue !executionResults.errorOutput
   }
 

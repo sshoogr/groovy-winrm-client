@@ -16,6 +16,7 @@
 
 package com.aestasit.infrastructure.winrm.client
 
+import com.aestasit.infrastructure.winrm.WinRMException
 import org.junit.BeforeClass
 import org.junit.Test
 import static org.junit.Assert.assertEquals
@@ -57,6 +58,13 @@ class WinRMClientRunningTest{
   @Test(expected=UnknownHostException.class)
   void testUnknownHost(){
     def newClient = new WinRMClient(host:'NotExistingHost1234_', user:'vagrant_12434', password:'vagrant_978')
+    def shellId = newClient.openShell()
+    assertNull shellId
+  }
+
+  @Test(expected=WinRMException.class)
+  void testWrongPrincipalCredential(){
+    def newClient = new WinRMClient(protocol:'http', host:'192.168.25.25', port:5985, user:'usr', password:'pwd')
     def shellId = newClient.openShell()
     assertNull shellId
   }

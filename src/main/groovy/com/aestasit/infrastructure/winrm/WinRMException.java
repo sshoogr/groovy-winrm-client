@@ -40,4 +40,13 @@ public class WinRMException extends RuntimeException {
     super(message);
     this.code = code;
   }
+
+  @Override
+  public String getMessage() {
+    if (null == code) {
+      return super.getMessage();
+    } else {
+      return "Execution failed with the following HTTP status code [" + code + "]";
+    }
+  }
 }
