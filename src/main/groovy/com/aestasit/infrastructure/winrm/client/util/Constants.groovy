@@ -24,9 +24,6 @@ package com.aestasit.infrastructure.winrm.client.util
 interface Constants {
 
   static String CMD_IS_RUNNING = 'Remote command is still running!'
-  static String CMD_IS_STOPPED_BY_TIMEOUT = 'WinRM Shell session timeout!'
-  static String CMD_IS_TERMINATED_BY_EXCEPTION = 'Execution of command is terminated by exception!'
-  static String CMD_STOP_IS_TERMINATED_BY_EXCEPTION = 'Stopping command execution is terminated by exception!'
 
   static String PROTOCOL_HTTP = 'http'
   static String PROTOCOL_HTTPS = 'https'

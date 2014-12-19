@@ -17,6 +17,7 @@
 package com.aestasit.infrastructure.winrm.client
 
 import org.junit.Test
+
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
 
@@ -29,7 +30,7 @@ class WinRMClientConnectedTest {
 
   @Test
   void testIsConnected() {
-    def client = new WinRMClient(protocol:'http', host:'127.0.0.1', user:'vagrant', password:'vagrant', port:5985)
+    def client = new WinRMClient(protocol: 'http', host: '127.0.0.1', user: 'vagrant', password: 'vagrant', port: 5985)
     assertFalse client.connected
     client.shellId = '11112222-3333-4444-ACDC-THUNDERSTRUC'
     assertTrue client.connected

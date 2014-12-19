@@ -60,8 +60,10 @@ class WinRMClient {
   private String shellId
   private HTTPBuilder httpBuilder
 
-  private static final String MISSING_SHELL_ID = 'Command cannot be executed without open remote shell! Use the openShell() method to start new shell!'
-  private static final String MISSING_COMMAND_ID = 'Command results cannot be retrieved without valid command ID! The executeCommand() method returns ID of the started command!'
+  private static
+  final String MISSING_SHELL_ID = 'Command cannot be executed without open remote shell! Use the openShell() method to start new shell!'
+  private static
+  final String MISSING_COMMAND_ID = 'Command results cannot be retrieved without valid command ID! The executeCommand() method returns ID of the started command!'
 
   /**
    * Checks if shell is open for command execution on a remote host.
