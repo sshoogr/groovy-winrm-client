@@ -99,3 +99,7 @@ After all commands are executed the shell on the remote host has to be closed to
 
     client.deleteShell()
 
+### Running `groovy-winrm-client` integration tests
+
+Project's integration tests can be found in the `./src/integrationTest/` folder.
+To install properly test environment for running project's integration tests please refer to the documentation of the [groowin-test-box](https://github.com/aestasit/groowin-test-box) project.
