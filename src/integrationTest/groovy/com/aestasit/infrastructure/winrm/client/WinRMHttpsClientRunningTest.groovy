@@ -18,20 +18,19 @@ package com.aestasit.infrastructure.winrm.client
 
 import org.junit.Test
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertTrue
-
-import static com.aestasit.infrastructure.winrm.client.util.Constants.*
+import static com.aestasit.infrastructure.winrm.client.util.Constants.PROTOCOL_HTTPS
+import static org.junit.Assert.*
 
 /**
  * Integration class to test WinRM client via HTTPS
  *
  * @author Sergey Korenko
  */
-class WinRMHttpsClientRunningTest{
+class WinRMHttpsClientRunningTest {
+
   @Test
   void testExecute() {
+
     WinRMClient client = new WinRMClient(PROTOCOL_HTTPS, '192.168.25.25', 5986, 'vagrant', 'vagrant')
     client.openShell()
 
@@ -44,5 +43,7 @@ class WinRMHttpsClientRunningTest{
     assertTrue output.errorOutput.empty
 
     client.deleteShell()
+
   }
+
 }
