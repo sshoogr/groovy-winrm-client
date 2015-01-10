@@ -103,7 +103,8 @@ After all commands are executed the shell on the remote host has to be closed to
 
 Project's integration tests can be found in the `./src/integrationTest/` folder.
 To run the integration tests:
-1. Create box [groowin-test-box](https://github.com/aestasit/groowin-test-box) project. You will get `windows_2008_r2_virtualbox.box`
+
+1. Create base box using [groowin-test-box](https://github.com/aestasit/groowin-test-box) project. After finishing you will have `windows_2008_r2_virtualbox.box`
 2. Add 'aestasit/2008r2' box using the command `vagrant box add --name aestasit/2008r2 windows_2008_r2_virtualbox.box`
-3. Execute `vagrant up` for the `./Vagrantfile` file
+3. Execute `vagrant up` using the `./Vagrantfile` file
 4. execute `gradle integration` command to run integration tests
