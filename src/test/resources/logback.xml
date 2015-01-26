@@ -22,7 +22,7 @@
     </encoder>
   </appender>
 
-  <logger name="com.aestasit" level="DEBUG" />  
+  <logger name="com.aestasit" level="INFO" />
 
   <root level="ERROR">    
     <appender-ref ref="STDOUT" />
