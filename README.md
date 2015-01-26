@@ -108,3 +108,7 @@ To run the integration tests:
 2. Add 'aestasit/2008r2' box using the command `vagrant box add --name aestasit/2008r2 windows_2008_r2_virtualbox.box`
 3. Execute `vagrant up` using the `./Vagrantfile` file
 4. execute `gradle integration` command to run integration tests
+
+## See also
+
+[How to configure the WinRM host to enable communication through the HTTPS protocol](HTTPS_SETUP.md)
