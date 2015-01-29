@@ -82,14 +82,12 @@ class WinRMClient {
    */
   String openShell() {
     initialize()
-    logger.debug 'Sending request to create WinRM Shell'
     String request = new OpenShellRequest(toAddress, requestTimeout).toString()
     String response = sendHttpRequest(request)
     GPathResult results = new XmlSlurper().parseText(response)
     shellId = results?.'*:Body'?.'*:ResourceCreated'?.'*:ReferenceParameters'?.'*:SelectorSet'?.'*:Selector'?.find {
       it.@Name == 'ShellId'
     }?.text()
-    logger.debug "'Create WinRM Shell' request has been processed"
     if (!shellId) {
       logger.warn "Remote shell creation failed (shellId = null)"
     }
@@ -104,17 +102,12 @@ class WinRMClient {
    * @return command id corresponds to the transferred command.
    */
   String executeCommand(String command, String[] args = []) {
-
-    logger.debug "Sending request to execute command in previously open shell with id=${shellId}"
-
     Validate.notNull(shellId, MISSING_SHELL_ID)
 
     String request = new ExecuteCommandRequest(toAddress, shellId, command, args, requestTimeout).toString()
     String response = sendHttpRequest(request)
     GPathResult results = new XmlSlurper().parseText(response)
     String commandId = results?.'*:Body'?.'*:CommandResponse'?.'*:CommandId'?.text()
-
-    logger.debug "Request to execute command has been finsihed in previously open shell with id=${shellId}"
 
     commandId
 
@@ -127,8 +120,6 @@ class WinRMClient {
    * @return CommandOutput containing output, error output, exit code of the command execution on a remote host.
    */
   CommandOutput commandExecuteResults(String commandId) {
-
-    logger.debug "Reading output of command with id =[${commandId}] from shell with id=${shellId}"
 
     Validate.notNull(shellId, MISSING_SHELL_ID)
     Validate.notNull(commandId, MISSING_COMMAND_ID)
@@ -152,10 +143,8 @@ class WinRMClient {
       it.@CommandId == commandId && it.@State == 'http://schemas.microsoft.com/wbem/wsman/1/windows/shell/CommandState/Done'
     }) {
       Integer exitStatus = results?.'*:Body'?.'*:ReceiveResponse'?.'*:CommandState'?.'*:ExitCode'?.text()?.toInteger()
-      logger.debug "retrieve command output of command with id =[${commandId}] has been processed"
       return new CommandOutput(exitStatus, commandOutputArr, errOutputArr)
     } else {
-      logger.debug "command with id =[${commandId}] from shell with id=${shellId} is still RUNNING"
       return new CommandOutput(-1, commandOutputArr, CMD_IS_RUNNING)
     }
 
@@ -168,15 +157,11 @@ class WinRMClient {
    */
   void cleanupCommand(String commandId) {
 
-    logger.debug "Release all external and internal WinRM resources for shell with id=${shellId} and command id = [${commandId}]"
-
     Validate.notNull(shellId, MISSING_SHELL_ID)
     Validate.notNull(commandId, MISSING_COMMAND_ID)
 
     String request = new CleanupCommandRequest(toAddress, shellId, commandId, requestTimeout).toString()
     sendHttpRequest(request)
-
-    logger.debug 'Release all external and internal WinRM resources'
 
   }
 
@@ -187,15 +172,11 @@ class WinRMClient {
    */
   boolean deleteShell() {
 
-    logger.debug "Sending Close shell request with id = ${shellId}"
-
     Validate.notNull(shellId, MISSING_SHELL_ID)
 
     String request = new DeleteShellRequest(toAddress, shellId, requestTimeout).toString()
     String response = sendHttpRequest(request)
     GPathResult results = new XmlSlurper().parseText(response)
-
-    logger.debug 'Close Shell Request processing is finished'
 
     shellId = null
 
@@ -234,8 +215,6 @@ class WinRMClient {
 
   private synchronized String sendHttpRequest(String request) {
 
-    logger.debug "Sending http request to remote host"
-
     String responseXml = null
     httpBuilder.request(POST, TEXT) {
 
@@ -254,16 +233,12 @@ class WinRMClient {
 
     }
 
-    logger.debug "Finished processing sending http request"
-
     responseXml
 
   }
 
   private void configureHttpsConnection() {
-    logger.debug 'Configuring Https connection'
     Scheme scheme = new Scheme("https", new SSLSocketFactory(trustStrategy.strategy, verificationStrategy.verifier), 443)
     httpBuilder.client.connectionManager.schemeRegistry.register(scheme)
-    logger.debug 'Https connection is configured'
   }
 }
