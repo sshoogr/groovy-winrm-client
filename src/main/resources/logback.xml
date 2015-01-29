@@ -14,14 +14,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<s:Envelope xml:lang="en-US" xmlns:s="http://www.w3.org/2003/05/soap-envelope"
-            xmlns:a="http://schemas.xmlsoap.org/ws/2004/08/addressing"
-    >
-    <s:Header>
-        <a:Action>http://schemas.xmlsoap.org/ws/2004/09/transfer/DeleteResponse</a:Action>
-        <a:MessageID>uuid:FDC7FA44-C7B5-42A6-BB2E-1B0967717960</a:MessageID>
-        <a:To>http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous</a:To>
-        <a:RelatesTo>uuid:8B0F52CB-40BD-4536-8585-ACBC40F3DF84</a:RelatesTo>
-    </s:Header>
-    <s:Body></s:Body>
-</s:Envelope>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.aestasit" level="INFO" />
+
+    <root level="ERROR">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>

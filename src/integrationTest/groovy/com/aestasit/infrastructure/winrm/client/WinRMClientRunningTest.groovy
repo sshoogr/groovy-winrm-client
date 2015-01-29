@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2014 Aestas/IT
+ * Copyright (C) 2011-2015 Aestas/IT
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class WinRMClientRunningTest {
 
   @Test
   void testFictionalCommand() {
-    client.openShell() ktrj
+    client.openShell()
     def commandId = client.executeCommand('pong')
     assertEquals 36, commandId.length()
     def output = client.commandExecuteResults(commandId)
